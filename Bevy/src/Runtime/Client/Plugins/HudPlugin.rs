@@ -1,4 +1,5 @@
-use crate::GameState;
+﻿use crate::GameState;
+use crate::Resources::DataResource::DataResource;
 use bevy::prelude::*;
 
 const ROOT_PERCENT: f32 = 100.0;
@@ -16,13 +17,28 @@ pub struct HudPlugin;
 
 impl Plugin for HudPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(OnEnter(GameState::Playing), setup_hud)
+        app.init_resource::<DataResource>()
+            .add_systems(OnEnter(GameState::Playing), setup_hud)
+            .add_systems(
+                Update,
+                update_hud
+                    .run_if(in_state(GameState::Playing))
+                    .run_if(resource_changed::<DataResource>),
+            )
             .add_systems(OnExit(GameState::Playing), cleanup_hud);
     }
 }
 
 #[derive(Component)]
 struct HudRoot;
+
+/// Marks the Text node that displays the lives counter.
+#[derive(Component)]
+struct LivesText;
+
+/// Marks the Text node that displays the score counter.
+#[derive(Component)]
+struct ScoreText;
 
 #[derive(Clone, Copy)]
 enum HudCorner {
@@ -32,7 +48,15 @@ enum HudCorner {
     BottomRight,
 }
 
-fn setup_hud(mut commands: Commands) {
+fn format_lives(data: &DataResource) -> String {
+    format!("Lives: {:03}/{:03}", data.lives_current, data.lives_max)
+}
+
+fn format_score(data: &DataResource) -> String {
+    format!("Score: {:03}/{:03}", data.score_current, data.score_max)
+}
+
+fn setup_hud(mut commands: Commands, data: Res<DataResource>) {
     commands
         .spawn((
             Node {
@@ -44,18 +68,34 @@ fn setup_hud(mut commands: Commands) {
             HudRoot,
         ))
         .with_children(|children| {
-            spawn_panel(children, "Lives: 003/003", HudCorner::TopLeft);
-            spawn_panel(children, "Score: 000/005", HudCorner::TopRight);
+            spawn_panel(children, &format_lives(&data), HudCorner::TopLeft, LivesText);
+            spawn_panel(children, &format_score(&data), HudCorner::TopRight, ScoreText);
             spawn_panel(
                 children,
-                "Instructions: Wasd/Arrows, Spacebar, R",
+                "Instructions: Wasd/Arrows, Space, R, M",
                 HudCorner::BottomLeft,
+                (),
             );
-            spawn_panel(children, "Game", HudCorner::BottomRight);
+            spawn_panel(children, "Game", HudCorner::BottomRight, ());
         });
 }
 
-fn spawn_panel(parent: &mut ChildSpawnerCommands, label: &str, corner: HudCorner) {
+/// Rerenders the dynamic HUD panels whenever `DataResource` changes.
+fn update_hud(
+    data: Res<DataResource>,
+    mut lives_text: Single<&mut Text, (With<LivesText>, Without<ScoreText>)>,
+    mut score_text: Single<&mut Text, (With<ScoreText>, Without<LivesText>)>,
+) {
+    **lives_text = Text::new(format_lives(&data));
+    **score_text = Text::new(format_score(&data));
+}
+
+fn spawn_panel<B: Bundle>(
+    parent: &mut ChildSpawnerCommands,
+    label: &str,
+    corner: HudCorner,
+    extra: B,
+) {
     parent
         .spawn((
             Node {
@@ -64,6 +104,7 @@ fn spawn_panel(parent: &mut ChildSpawnerCommands, label: &str, corner: HudCorner
                 position_type: PositionType::Absolute,
                 padding: UiRect::axes(Val::Px(PANEL_PADDING_X), Val::Px(PANEL_PADDING_Y)),
                 align_items: AlignItems::Center,
+                justify_content: panel_justify(corner),
                 ..panel_position(corner)
             },
             BackgroundColor(PANEL_BACKGROUND),
@@ -76,13 +117,23 @@ fn spawn_panel(parent: &mut ChildSpawnerCommands, label: &str, corner: HudCorner
             },
             text_layout(corner),
             TextColor(PANEL_TEXT_COLOR),
+            extra,
         ));
 }
 
 fn text_layout(corner: HudCorner) -> TextLayout {
     match corner {
         HudCorner::TopLeft | HudCorner::BottomLeft => TextLayout::new_with_justify(Justify::Left),
-        HudCorner::TopRight | HudCorner::BottomRight => TextLayout::new_with_justify(Justify::Right),
+        HudCorner::TopRight | HudCorner::BottomRight => {
+            TextLayout::new_with_justify(Justify::Right)
+        }
+    }
+}
+
+fn panel_justify(corner: HudCorner) -> JustifyContent {
+    match corner {
+        HudCorner::TopLeft | HudCorner::BottomLeft => JustifyContent::FlexStart,
+        HudCorner::TopRight | HudCorner::BottomRight => JustifyContent::FlexEnd,
     }
 }
 

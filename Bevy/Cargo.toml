@@ -7,11 +7,11 @@ edition = "2024"
 exclude = ["dist", "build", "assets", "credits"]
 
 [lib]
-path = "src/Runtime/Client/Misc/Lib.rs"
+path = "src/Runtime/Client/Lib.rs"
 
 [[bin]]
 name = "bevy_game"
-path = "src/Runtime/Client/Misc/Main.rs"
+path = "src/Runtime/Client/Main.rs"
 
 [workspace]
 members = ["mobile"]

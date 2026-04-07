@@ -1,13 +1,15 @@
-use crate::Components::PlayerComponent::Player;
+﻿use crate::Components::PlayerComponent::Player;
 use crate::Components::RotationComponent::Rotation;
 use crate::GameState;
 use crate::Resources::ActionsResource::Actions;
 use crate::Resources::AssetsResource::TextureAssets;
+use crate::Systems::RotationSystem::rotate_player;
 use bevy::prelude::*;
 
 const PLAYER_SPEED: f32 = 150.0;
 const PLAYER_Z_INDEX: f32 = 1.0;
-const PLAYER_DEFAULT_SCALE: Vec3 = Vec3::ONE;
+const PLAYER_BASE_SCALE: f32 = 0.9;
+const PLAYER_DEFAULT_SCALE: Vec3 = Vec3::splat(PLAYER_BASE_SCALE);
 const PLAYER_SHRINK_FACTOR: f32 = 0.9;
 
 /// Spawns and moves the player entity during gameplay.
@@ -18,7 +20,11 @@ impl Plugin for PlayerPlugin {
         app.add_systems(OnEnter(GameState::Playing), spawn_player)
             .add_systems(
                 Update,
-                (handle_player_actions, move_player.after(handle_player_actions))
+                (
+                    handle_player_actions,
+                    move_player.after(handle_player_actions),
+                    rotate_player,
+                )
                     .run_if(in_state(GameState::Playing)),
             )
             .add_systems(OnExit(GameState::Playing), cleanup_player);
@@ -28,7 +34,7 @@ impl Plugin for PlayerPlugin {
 /// Spawns the single player entity used by this template.
 fn spawn_player(mut commands: Commands, textures: Res<TextureAssets>) {
     commands.spawn((
-        Sprite::from_image(textures.bevy.clone()),
+        Sprite::from_image(textures.player.clone()),
         Transform::from_xyz(0.0, 0.0, PLAYER_Z_INDEX).with_scale(PLAYER_DEFAULT_SCALE),
         Player,
         Rotation::default(),
@@ -71,6 +77,7 @@ fn move_player(
 
     player.translation += frame_movement;
 }
+
 
 /// Removes the player entity when leaving gameplay.
 fn cleanup_player(mut commands: Commands, players: Query<Entity, With<Player>>) {

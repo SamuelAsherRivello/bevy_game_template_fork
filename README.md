@@ -60,11 +60,10 @@ This template contains the following:
 | Name | Description |
 |---|---|
 | [`Bevy/AGENTS.md`](./Bevy/AGENTS.md) | Repo conventions, folder map, and guidance for AI coding agents. |
-| [`Bevy/documentation/project_spec.md`](./Bevy/documentation/project_spec.md) | Project vision, architecture decisions, and extension guidance. |
 | `Bevy/src/Runtime/Client/Components/` | ECS component types attached to entities. |
 | `Bevy/src/Runtime/Client/Resources/` | Resources, typed asset handles, and input intent. |
-| `Bevy/src/Runtime/Client/Systems/` | One feature plugin or system entrypoint per file. |
-| `Bevy/src/Runtime/Client/Misc/` | UI, app entrypoints, and non-component/resource/system files. |
+| `Bevy/src/Runtime/Client/Systems/` | System-function-heavy plugin entrypoints, one per feature. |
+| `Bevy/src/Runtime/Client/Plugins/` | Feature-level Bevy Plugin implementations (menu, player, etc.). |
 | `Bevy/src/Tests/` | Headless in-crate tests compiled only for test builds. |
 | [`bevy_asset_loader`](https://github.com/NiklasEi/bevy_asset_loader) | Typed, state-driven asset loading. |
 | [`bevy_kira_audio`](https://github.com/NiklasEi/bevy_kira_audio) | Cross-platform audio with good Web and Android support. |
@@ -95,9 +94,8 @@ Core capabilities included today:
 - A working **Bevy ECS-oriented layout** under `Bevy/src/`
 - **`Components/`** for pure component data
 - **`Resources/`** for actions, assets, and shared runtime state
-- **`Systems/`** for plugins and systems, one feature per file
-- **`Misc/`** for menu UI, app entrypoints, and non-ECS support code
-- **`Shared/`** and **`Server/`** scaffolding ready to populate
+- **`Systems/`** for system-function-heavy plugin entrypoints, one per feature
+- **`Plugins/`** for feature-level Bevy Plugin implementations
 - **`Tests/`** for headless Rust test modules
 - Input abstraction from raw device input into an `Actions` resource
 - A three-state flow: `Loading -> Menu -> Playing`
@@ -117,14 +115,14 @@ WARNING: if you work in a private repository, please be aware that macOS and Win
 
 **Documentation**
 - `Bevy/AGENTS.md` - Current conventions and folder map
-- `Bevy/documentation/project_spec.md` - Architecture, state machine, dependencies, and test strategy
 
 **Runtime**
 - `Bevy/src/Runtime/Client/Components/` - ECS components
 - `Bevy/src/Runtime/Client/Resources/` - Resources and input/action models
-- `Bevy/src/Runtime/Client/Systems/` - Plugins and systems
-- `Bevy/src/Runtime/Client/Misc/` - Main app files, menu UI, and support files
-- `Bevy/src/Runtime/Shared/` - Shared utilities scaffold
+- `Bevy/src/Runtime/Client/Systems/` - System-function-heavy plugin entrypoints
+- `Bevy/src/Runtime/Client/Plugins/` - Feature-level Bevy Plugin implementations
+- `Bevy/src/Runtime/Client/Lib.rs` - GamePlugin and GameState definition
+- `Bevy/src/Runtime/Client/Main.rs` - Native and web app entrypoint
 - `Bevy/src/Runtime/Server/` - Future server/headless scaffold
 
 **Testing**
@@ -291,14 +289,14 @@ Benefits:
 
 ### Coding And Architecture Standards
 
-The project conventions are documented in [`Bevy/AGENTS.md`](./Bevy/AGENTS.md) and [`Bevy/documentation/project_spec.md`](./Bevy/documentation/project_spec.md).
+The project conventions are documented in [`Bevy/AGENTS.md`](./Bevy/AGENTS.md).
 
 Current rules include:
 
 - `Components/` holds ECS components only
 - `Resources/` holds resources and typed asset/input models
-- `Systems/` holds `Plugin` implementations and system functions
-- `Misc/` holds app entrypoints, menu UI, and everything that does not fit the other runtime folders
+- `Systems/` holds system-function-heavy `Plugin` implementations and system functions
+- `Plugins/` holds feature-level `Plugin` implementations (menu, player, etc.)
 - Gameplay systems should use `.run_if(in_state(GameState::Playing))`
 - Systems should consume `Res<Actions>` rather than raw `ButtonInput`, except in `Systems/InputSystem.rs`
 - Tests stay headless and should use `MinimalPlugins`

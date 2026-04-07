@@ -1,4 +1,4 @@
-﻿﻿# AGENTS.md — AI Agent Guidance
+﻿# AGENTS.md — AI Agent Guidance
 
 This file tells AI coding agents how to work effectively in this repository.
 Read it before making any changes.
@@ -20,52 +20,58 @@ Inside `src/`, use **Title Case** for every folder and file name except the root
 ## Repository layout
 
 ```
-bevy_game_template_fork/
+Bevy/
 ├── AGENTS.md                  ← you are here
-├── README.md                  ← build instructions + platform guide
 ├── Cargo.toml                 ← workspace root + main crate dependencies
 ├── Cargo.lock
 ├── build.rs                   ← embeds Windows icon resource
 ├── index.html                 ← Trunk web entry point
 ├── Trunk.toml                 ← Trunk (WASM bundler) config
-├── .cargo/config.toml         ← getrandom wasm_js backend cfg flag
 │
 ├── documentation/
+│   ├── credits/               ← CREDITS.md + third-party licenses
 │   └── images/                ← screenshots, diagrams
 │
 ├── assets/
-│   ├── audio/flying.ogg
-│   └── textures/bevy.png, github.png
+│   ├── audio/
+│   │   ├── Click01.ogg
+│   │   └── Click02.mp3
+│   └── textures/
+│       ├── bevy.png
+│       └── github.png
 │
 ├── src/
 │   ├── Runtime/
 │   │   ├── Client/
-│   │   ├── Components/
-│   │   │   ├── Mod.rs
-│   │   │   └── PlayerComponent.rs
-│   │   ├── Resources/
-│   │   │   ├── Mod.rs
-│   │   │   ├── ActionsResource.rs
-│   │   │   └── AssetsResource.rs
-│   │   ├── Systems/
-│   │   │   ├── Mod.rs
-│   │   │   ├── InputSystem.rs
-│   │   │   ├── AudioSystem.rs
-│   │   │   ├── LoadingSystem.rs
-│   │   │   └── PlayerSystem.rs
-│   │   └── Misc/
-│   │       ├── Mod.rs
-│   │       ├── Lib.rs
-│   │       ├── Main.rs
-│   │       └── Menu.rs
-│   │   ├── Shared/
-│   │   │   └── Mod.rs
-│   │   └── Server/
+│   │   │   ├── Lib.rs              ← GamePlugin, GameState
+│   │   │   ├── Main.rs             ← binary + web entrypoint
+│   │   │   ├── Components/         ← ECS component types
+│   │   │   │   ├── Mod.rs
+│   │   │   │   ├── PlayerComponent.rs
+│   │   │   │   └── RotationComponent.rs
+│   │   │   ├── Plugins/            ← Feature-level Bevy Plugin impls
+│   │   │   │   ├── Mod.rs
+│   │   │   │   ├── MenuPlugin.rs
+│   │   │   │   └── PlayerPlugin.rs
+│   │   │   ├── Resources/          ← Resources, typed asset handles, input intent
+│   │   │   │   ├── Mod.rs
+│   │   │   │   ├── ActionsResource.rs
+│   │   │   │   ├── AssetsResource.rs
+│   │   │   │   └── DataResource.rs
+│   │   │   └── Systems/            ← System-function-heavy plugin entrypoints
+│   │   │       ├── Mod.rs
+│   │   │       ├── AudioSystem.rs
+│   │   │       ├── HudSystem.rs
+│   │   │       ├── InputSystem.rs
+│   │   │       ├── LoadingSystem.rs
+│   │   │       ├── PlayerSystem.rs
+│   │   │       └── RotationSystem.rs
+│   │   └── Server/                 ← Future headless/server scaffold
 │   │       └── Mod.rs
-│   └── Tests/                 ← Headless in-crate test modules
+│   └── Tests/                      ← Headless in-crate test modules
 │       ├── Mod.rs
-│       ├── ModelTests.rs      ← Actions, GameControl, get_movement
-│       └── PlayerTests.rs     ← Player component, GameState machine
+│       ├── ModelTests.rs           ← Actions, GameControl, get_movement
+│       └── PlayerTests.rs          ← Player component, GameState machine
 │
 ├── mobile/                    ← Android + iOS workspace crate
 └── build/                     ← Platform-specific build assets (icons, installer)
@@ -78,14 +84,14 @@ bevy_game_template_fork/
 | Convention | Detail |
 |---|---|
 | **Naming** | Within `src/`, every folder and file uses Title Case except `src` itself. |
-| **Classification** | Put components in `Components/`, resources in `Resources/`, systems/plugins in `Systems/`, and everything else in `Misc/`. |
-| **Suffixes** | Component files must be named `*Component.rs`, resource files `*Resource.rs`, and system files `*System.rs`. |
-| **Data vs behaviour** | `Components/` and `Resources/` hold data. `Systems/` holds `Plugin` impls and system functions. |
-| **One plugin per feature** | Each file in `Systems/` is one self-contained feature plugin or system entrypoint. |
+| **Classification** | Put components in `Components/`, resources in `Resources/`, system-heavy plugins in `Systems/`, feature plugins in `Plugins/`. |
+| **Suffixes** | Component files must be named `*Component.rs`, resource files `*Resource.rs`, system files `*System.rs`, and plugin files `*Plugin.rs`. |
+| **Data vs behaviour** | `Components/` and `Resources/` hold data. `Systems/` and `Plugins/` hold `Plugin` impls and system functions. |
+| **One plugin per feature** | Each file in `Systems/` and `Plugins/` is one self-contained feature plugin. |
 | **State-gated systems** | All gameplay systems use `.run_if(in_state(GameState::Playing))`. |
 | **Input abstraction** | Systems read `Res<Actions>`, never raw `ButtonInput` directly (except `Systems/InputSystem.rs`). |
 | **Tests are headless** | Use `MinimalPlugins` in tests. Never require a display or audio device. |
-| **`GameState` is `pub`** | It lives in `lib.rs` and must stay `pub` so integration tests and `main.rs` can reference it. |
+| **`GameState` is `pub`** | It lives in `Client/Lib.rs` and must stay `pub` so tests and `Main.rs` can reference it. |
 
 ---
 
@@ -116,7 +122,6 @@ cargo test
 2. Run `cargo test` before and after your changes.
 3. If you add a new game feature, follow the pattern:
    - Add components to `Components/` and resources to `Resources/` as needed
-   - Add a system/plugin file in `Systems/`
-   - Put non-component/resource/system files in `Misc/`
-   - Register the plugin in `Misc/Lib.rs` `GamePlugin::build`
+   - Add a system-entrypoint file in `Systems/` or a feature plugin in `Plugins/`
+   - Register the new plugin in `Client/Lib.rs` `GamePlugin::build`
    - Add at least one headless test module in `src/Tests/`

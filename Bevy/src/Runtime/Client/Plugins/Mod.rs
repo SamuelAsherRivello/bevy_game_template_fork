@@ -1,0 +1,17 @@
+﻿/// Feature plugins for the client.
+#[path = "AudioPlugin.rs"]
+pub mod AudioPlugin;
+#[path = "CustomDefaultsPlugin.rs"]
+pub mod CustomDefaultsPlugin;
+#[path = "GamePlugin.rs"]
+pub mod GamePlugin;
+#[path = "HudPlugin.rs"]
+pub mod HudPlugin;
+#[path = "InputPlugin.rs"]
+pub mod InputPlugin;
+#[path = "LoadingPlugin.rs"]
+pub mod LoadingPlugin;
+#[path = "MenuPlugin.rs"]
+pub mod MenuPlugin;
+#[path = "PlayerPlugin.rs"]
+pub mod PlayerPlugin;

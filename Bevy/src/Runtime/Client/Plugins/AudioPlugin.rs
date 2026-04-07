@@ -1,7 +1,7 @@
-use crate::GameState;
+﻿use crate::GameState;
 use crate::Resources::ActionsResource::Actions;
 use crate::Resources::AssetsResource::AudioAssets;
-use crate::Systems::InputSystem::set_movement_actions;
+use crate::Plugins::InputPlugin::set_movement_actions;
 use bevy::prelude::*;
 use bevy_kira_audio::prelude::*;
 

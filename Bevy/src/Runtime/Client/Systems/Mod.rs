@@ -1,11 +1,5 @@
-/// Gameplay systems and plugins for the client.
-#[path = "AudioSystem.rs"]
-pub mod AudioSystem;
-#[path = "InputSystem.rs"]
-pub mod InputSystem;
-#[path = "LoadingSystem.rs"]
-pub mod LoadingSystem;
-#[path = "PlayerSystem.rs"]
-pub mod PlayerSystem;
+// Gameplay systems for the client.
+// Plugins that previously lived here have been moved to the `Plugins` module.
+
 #[path = "RotationSystem.rs"]
 pub mod RotationSystem;
