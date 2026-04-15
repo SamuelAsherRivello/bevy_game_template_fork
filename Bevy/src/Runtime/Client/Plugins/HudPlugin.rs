@@ -72,7 +72,7 @@ fn setup_hud(mut commands: Commands, data: Res<DataResource>) {
             spawn_panel(children, &format_score(&data), HudCorner::TopRight, ScoreText);
             spawn_panel(
                 children,
-                "Instructions: Wasd/Arrows, Space, R, M",
+                "Instructions: Wasd/Arrows, Space, R, M, T",
                 HudCorner::BottomLeft,
                 (),
             );

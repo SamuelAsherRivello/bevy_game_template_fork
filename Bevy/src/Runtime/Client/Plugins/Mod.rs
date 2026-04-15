@@ -3,6 +3,8 @@
 pub mod AudioPlugin;
 #[path = "CustomDefaultsPlugin.rs"]
 pub mod CustomDefaultsPlugin;
+#[path = "DebugOverlayPlugin.rs"]
+pub mod DebugOverlayPlugin;
 #[path = "GamePlugin.rs"]
 pub mod GamePlugin;
 #[path = "HudPlugin.rs"]

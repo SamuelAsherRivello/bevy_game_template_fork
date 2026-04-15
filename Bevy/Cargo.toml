@@ -41,11 +41,20 @@ codegen-units = 1
 strip = true
 
 [features]
+# Native dev: fast rebuilds (dynamic linking + file watcher) + UI debug overlay.
 dev_native = [
     "bevy/dynamic_linking",
     "bevy/file_watcher",
+    "bevy_ui_debug",
 ]
 dev = ["dev_native"]
+
+# WASM dev: only features that are WASM-safe (no dynamic_linking / file_watcher).
+# Usage: trunk serve --features dev_wasm
+dev_wasm = ["bevy_ui_debug"]
+
+# Standalone toggle so either platform can opt-in independently.
+bevy_ui_debug = ["bevy/bevy_ui_debug"]
 
 # All of Bevy's default features exept for the audio related ones (bevy_audio, vorbis), since they clash with bevy_kira_audio
 #   and android_shared_stdcxx/android-game-activity, since those are covered in `mobile`

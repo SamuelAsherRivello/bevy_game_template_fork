@@ -6,6 +6,7 @@ test-dev = "test --features dev_native"
 
 # Wasm-focused checks/builds.
 check-wasm = "check --target wasm32-unknown-unknown"
+check-wasm-dev = "check --target wasm32-unknown-unknown --features dev_wasm"
 build-wasm-release = "build --target wasm32-unknown-unknown --release"
 
 [target.wasm32-unknown-unknown]

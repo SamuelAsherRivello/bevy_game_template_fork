@@ -1,5 +1,6 @@
 ﻿use crate::GameState;
 use crate::Plugins::AudioPlugin::InternalAudioPlugin;
+use crate::Plugins::DebugOverlayPlugin::DebugOverlayPlugin;
 use crate::Plugins::HudPlugin::HudPlugin;
 use crate::Plugins::InputPlugin::ActionsPlugin;
 use crate::Plugins::LoadingPlugin::LoadingPlugin;
@@ -21,6 +22,7 @@ impl Plugin for GamePlugin {
                 HudPlugin,
                 ActionsPlugin,
                 InternalAudioPlugin,
+                DebugOverlayPlugin,
             ));
 
         #[cfg(debug_assertions)]
